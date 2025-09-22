@@ -1,0 +1,491 @@
+{
+  "version": 5,
+  "students": [
+    {
+      "studentId": "557",
+      "fullName": "lian mohamed mahmoud sohail",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.690884+00:00"
+    },
+    {
+      "studentId": "559",
+      "fullName": "malak mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.690959+00:00"
+    },
+    {
+      "studentId": "561",
+      "fullName": "nirvana mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691013+00:00"
+    },
+    {
+      "studentId": "562",
+      "fullName": "joudy alaa eldin",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691066+00:00"
+    },
+    {
+      "studentId": "563",
+      "fullName": "ali raslan",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691113+00:00"
+    },
+    {
+      "studentId": "585",
+      "fullName": "saged kariam",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691160+00:00"
+    },
+    {
+      "studentId": "586",
+      "fullName": "berbetwa mongy",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691208+00:00"
+    },
+    {
+      "studentId": "594",
+      "fullName": "salma hossam mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691256+00:00"
+    },
+    {
+      "studentId": "595",
+      "fullName": "retaj mohamed tag",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691304+00:00"
+    },
+    {
+      "studentId": "596",
+      "fullName": "rodina osama",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691352+00:00"
+    },
+    {
+      "studentId": "597",
+      "fullName": "joudy mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691399+00:00"
+    },
+    {
+      "studentId": "600",
+      "fullName": "kenzy mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691445+00:00"
+    },
+    {
+      "studentId": "681",
+      "fullName": "lojen mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691492+00:00"
+    },
+    {
+      "studentId": "683",
+      "fullName": "mahmoud mostafa abood",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691538+00:00"
+    },
+    {
+      "studentId": "684",
+      "fullName": "esraa hesham abdelrhman",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691584+00:00"
+    },
+    {
+      "studentId": "685",
+      "fullName": "yara shreif fathy",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691631+00:00"
+    },
+    {
+      "studentId": "686",
+      "fullName": "rana tarek",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691722+00:00"
+    },
+    {
+      "studentId": "687",
+      "fullName": "saga mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691774+00:00"
+    },
+    {
+      "studentId": "688",
+      "fullName": "salma mohamed waleed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691820+00:00"
+    },
+    {
+      "studentId": "689",
+      "fullName": "ezz eldeen",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691867+00:00"
+    },
+    {
+      "studentId": "690",
+      "fullName": "gena ahmed salem",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691914+00:00"
+    },
+    {
+      "studentId": "691",
+      "fullName": "habiba mohamed mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.691960+00:00"
+    },
+    {
+      "studentId": "692",
+      "fullName": "mariem mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692007+00:00"
+    },
+    {
+      "studentId": "694",
+      "fullName": "nadine medany",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692054+00:00"
+    },
+    {
+      "studentId": "695",
+      "fullName": "roaa tamer mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692105+00:00"
+    },
+    {
+      "studentId": "696",
+      "fullName": "rodina waleed farouk",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692153+00:00"
+    },
+    {
+      "studentId": "698",
+      "fullName": "Rowan Mahmoud Ahmed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692204+00:00"
+    },
+    {
+      "studentId": "699",
+      "fullName": "nourhan shrif salah",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692250+00:00"
+    },
+    {
+      "studentId": "700",
+      "fullName": "merna mohsen",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692296+00:00"
+    },
+    {
+      "studentId": "1122",
+      "fullName": "ayaallah ramy",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692342+00:00"
+    },
+    {
+      "studentId": "1124",
+      "fullName": "habiba mohamed abdelgalil",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692388+00:00"
+    },
+    {
+      "studentId": "1125",
+      "fullName": "Mohamed refaat",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692434+00:00"
+    },
+    {
+      "studentId": "1126",
+      "fullName": "nada wael elsayad",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692480+00:00"
+    },
+    {
+      "studentId": "1127",
+      "fullName": "Rahma Hamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692526+00:00"
+    },
+    {
+      "studentId": "1128",
+      "fullName": "jailan mohamed hassan",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692572+00:00"
+    },
+    {
+      "studentId": "1129",
+      "fullName": "Youssef el helw",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692617+00:00"
+    },
+    {
+      "studentId": "1130",
+      "fullName": "mariam yasser neamaallah",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692664+00:00"
+    },
+    {
+      "studentId": "1131",
+      "fullName": "menna mohamed saad",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692710+00:00"
+    },
+    {
+      "studentId": "1132",
+      "fullName": "mariam ahmed mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692756+00:00"
+    },
+    {
+      "studentId": "1134",
+      "fullName": "omar ayman ahmed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692802+00:00"
+    },
+    {
+      "studentId": "1136",
+      "fullName": "farida hassan",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692847+00:00"
+    },
+    {
+      "studentId": "1137",
+      "fullName": "jana ahmed badr",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692894+00:00"
+    },
+    {
+      "studentId": "1138",
+      "fullName": "joudy kazem",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692940+00:00"
+    },
+    {
+      "studentId": "1139",
+      "fullName": "jana mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.692992+00:00"
+    },
+    {
+      "studentId": "1141",
+      "fullName": "nouran adnan",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693038+00:00"
+    },
+    {
+      "studentId": "1143",
+      "fullName": "mohand elsaied mohamed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693086+00:00"
+    },
+    {
+      "studentId": "1144",
+      "fullName": "nada elsaeed",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693132+00:00"
+    },
+    {
+      "studentId": "1189",
+      "fullName": "malak mahmoud abdeen",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693180+00:00"
+    },
+    {
+      "studentId": "1198",
+      "fullName": "joury abdelfatah ebrahim",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693227+00:00"
+    },
+    {
+      "studentId": "1199",
+      "fullName": "retaj mostafa rabia",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693274+00:00"
+    },
+    {
+      "studentId": "1264",
+      "fullName": "farida adham",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693320+00:00"
+    },
+    {
+      "studentId": "1271",
+      "fullName": "sama hesham",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693366+00:00"
+    },
+    {
+      "studentId": "1295",
+      "fullName": "salma mohamed elsaied gaber",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693414+00:00"
+    },
+    {
+      "studentId": "1481",
+      "fullName": "Nada Samir",
+      "grade": "Senior 1",
+      "className": null,
+      "registrationStatus": "unknown",
+      "homeworkStatus": "nan",
+      "lastUpdatedAt": "2025-09-22T13:02:41.693460+00:00"
+    }
+  ]
+}

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>First Scan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <style>
+    #history { height: 150px; }
+    #scanner { width: 100%; max-width: 640px; }
+    .scanner-overlay { position: relative; }
+    .scanner-laser { position: absolute; width: 40px; height: 1px; background: red; }
+  </style>
+  <script>
+    let ws;
+    let cache = {version:0, students:[]};
+    let codeReader;
+    let selectedDeviceId;
+    let currentStudent = null;
+    const token = localStorage.getItem('NODE_TOKEN') || '';
+    
+    function logHistory(text, error = false) {
+      const el = document.getElementById('history');
+      const time = new Date().toLocaleTimeString();
+      const color = error ? 'text-red-400' : 'text-green-400';
+      el.innerHTML = `<div class="${color}">[${time}] ${text}</div>` + el.innerHTML;
+      if (el.children.length > 100) el.lastChild.remove();
+    }
+
+    function updateValidationStatus(student) {
+      const statusEl = document.getElementById('validation-status');
+      const detailsEl = document.getElementById('student-details');
+      
+      if (!student) {
+        statusEl.className = 'text-gray-500';
+        statusEl.textContent = 'No student selected';
+        detailsEl.className = 'hidden';
+        return;
+      }
+
+      if (!student.inCache) {
+        statusEl.className = 'text-red-500 font-bold';
+        statusEl.textContent = '❌ Student not found in cache';
+        detailsEl.className = 'hidden';
+      } else {
+        statusEl.className = 'text-green-500 font-bold';
+        statusEl.textContent = '✓ Student validated';
+        detailsEl.className = 'block text-sm text-gray-600';
+        detailsEl.innerHTML = `
+          <p>Name: ${student.name || 'Not available'}</p>
+          <p>Class: ${student.class || 'Not available'}</p>
+        `;
+      }
+    }
+
+    function connect() {
+      ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onopen = () => {
+        ws.send(JSON.stringify({
+          type: 'register',
+          node: {name: 'Black-1', role: 'first_scan'},
+          token
+        }));
+        logHistory('Connected to server');
+      };
+      ws.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === 'cache' || msg.type === 'cache_update') {
+          cache = {version: msg.version, students: msg.students || []};
+          ws.send(JSON.stringify({type: 'cache_ack', version: cache.version}));
+          logHistory(`Received cache v${cache.version} with ${cache.students.length} students`);
+        }
+      };
+      ws.onclose = () => {
+        logHistory('Disconnected, retrying...', true);
+        setTimeout(connect, 2000);
+      };
+    }
+
+    async function initScanner() {
+      try {
+        codeReader = new ZXing.BrowserMultiFormatReader();
+        const videoInputDevices = await codeReader.listVideoInputDevices();
+        
+        // Populate camera select
+        const select = document.getElementById('camera-select');
+        select.innerHTML = videoInputDevices.map(device => 
+          `<option value="${device.deviceId}">${device.label}</option>`
+        ).join('');
+        
+        selectedDeviceId = videoInputDevices[0].deviceId;
+        select.value = selectedDeviceId;
+        
+        select.onchange = (event) => {
+          selectedDeviceId = event.target.value;
+          startScanner();
+        };
+        
+        startScanner();
+      } catch (err) {
+        console.error(err);
+        logHistory('Failed to initialize scanner: ' + err.message, true);
+      }
+    }
+
+    async function startScanner() {
+      try {
+        if (codeReader) {
+          const video = document.getElementById('scanner');
+          await codeReader.decodeFromVideoDevice(selectedDeviceId, video, (result, err) => {
+            if (result) {
+              const studentId = result.getText();
+              document.getElementById('sid').value = studentId;
+              
+              // Check if student exists in cache
+              const student = cache.students.find(s => s.studentId === studentId);
+              currentStudent = student ? { ...student, inCache: true } : { studentId, inCache: false };
+              
+              if (student) {
+                logHistory(`Found student: ${studentId}`);
+                // Pre-fill known status if available
+                if (student.registrationStatus) {
+                  document.getElementById('reg').value = student.registrationStatus;
+                }
+                if (student.homeworkStatus) {
+                  document.getElementById('hw').value = student.homeworkStatus;
+                }
+              } else {
+                logHistory(`Warning: Student ${studentId} not in cache`, true);
+                document.getElementById('reg').value = 'unknown';
+                document.getElementById('hw').value = 'unknown';
+              }
+              
+              updateValidationStatus(currentStudent);
+              // Play feedback sound
+              const audio = new Audio(student ? '/static/success.mp3' : '/static/error.mp3');
+              audio.play().catch(() => {}); // Ignore if sound fails to play
+            }
+          });
+        }
+      } catch (err) {
+        logHistory('Scanner error: ' + err.message, true);
+      }
+    }
+
+    function stopScanner() {
+      if (codeReader) {
+        codeReader.reset();
+      }
+    }
+
+    function sendManual() {
+      const sid = document.getElementById('sid').value.trim();
+      const reg = document.getElementById('reg').value;
+      const hw = document.getElementById('hw').value;
+      const comment = document.getElementById('comment').value.trim();
+      
+      if (!sid) {
+        alert('Enter Student ID');
+        return;
+      }
+      
+      // Check cache status
+      const student = cache.students.find(s => s.studentId === sid);
+      if (!student && !confirm('Warning: This student is not in the cache. Are you sure you want to proceed?')) {
+        return;
+      }
+      
+      const payload = {
+        studentId: sid,
+        registrationStatus: reg,
+        homeworkStatus: hw,
+        comment: comment + (student ? '' : ' [NOT IN CACHE]'),
+        source: {
+          nodeName: 'Black-1',
+          method: 'scan'
+        }
+      };
+      
+      ws.send(JSON.stringify({type: 'student_record', payload}));
+      logHistory(`Sent ${sid} (${reg}/${hw})`);
+      
+      // Clear form and status
+      document.getElementById('sid').value = '';
+      document.getElementById('comment').value = '';
+      currentStudent = null;
+      updateValidationStatus(null);
+    }
+
+    window.addEventListener('load', () => {
+      connect();
+      initScanner();
+    });
+  </script>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-3xl mx-auto p-6 space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-semibold">First Scan</h1>
+      <div class="flex items-center gap-2">
+        <select id="camera-select" class="text-sm border rounded px-2 py-1"></select>
+      </div>
+    </div>
+
+    <!-- Scanner -->
+    <div class="bg-white rounded-lg shadow-lg p-4 space-y-4">
+      <div class="aspect-video bg-black rounded-lg overflow-hidden">
+        <video id="scanner" class="w-full h-full object-cover"></video>
+      </div>
+      <div class="text-sm text-gray-500">
+        Scan a student ID barcode/QR code or enter details manually below
+      </div>
+    </div>
+
+    <!-- Manual Entry -->
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-2">
+        <h2 class="text-lg font-medium">Student Details</h2>
+        <div id="validation-status" class="text-gray-500">No student selected</div>
+      </div>
+      <div id="student-details" class="hidden"></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-gray-700">Student ID</label>
+          <input id="sid" placeholder="Scanned or manual ID" class="w-full border rounded px-3 py-2" />
+        </div>
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-gray-700">Registration Status</label>
+          <select id="reg" class="w-full border rounded px-3 py-2">
+            <option value="registered">Registered</option>
+            <option value="not_registered">Not Registered</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-gray-700">Homework Status</label>
+          <select id="hw" class="w-full border rounded px-3 py-2">
+            <option value="done">Done</option>
+            <option value="not_done">Not Done</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+        <div class="space-y-1">
+          <label class="block text-sm font-medium text-gray-700">Comment (Optional)</label>
+          <input id="comment" placeholder="Any additional notes" class="w-full border rounded px-3 py-2" />
+        </div>
+      </div>
+      <div class="flex justify-end">
+        <button onclick="sendManual()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          Send Record
+        </button>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+      <h2 class="text-lg font-medium border-b pb-2">Scan History</h2>
+      <div id="history" class="bg-gray-900 text-sm font-mono rounded-lg p-4 overflow-auto space-y-1"></div>
+    </div>
+  </div>
+</body>
+</html>

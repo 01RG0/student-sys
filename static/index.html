@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student System - Role Selection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <script>
+    let defaultName = localStorage.getItem('NODE_NAME') || '';
+    let defaultToken = localStorage.getItem('NODE_TOKEN') || '';
+    let selectedRole = '';
+
+    function validateAndSave() {
+      const name = document.getElementById('name').value.trim();
+      const token = document.getElementById('token').value.trim();
+
+      if (!name) {
+        showError('Please enter a device name');
+        return false;
+      }
+
+      if (!selectedRole) {
+        showError('Please select a role');
+        return false;
+      }
+
+      // Save to localStorage
+      localStorage.setItem('NODE_TOKEN', token);
+      localStorage.setItem('NODE_NAME', name);
+      localStorage.setItem('NODE_ROLE', selectedRole);
+
+      // Navigate to appropriate page
+      window.location.href = '/' + selectedRole.toLowerCase().replace('_', '');
+      return false;
+    }
+
+    function selectRole(role, el) {
+      selectedRole = role;
+      // Reset all buttons
+      document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.classList.remove('ring-4', 'ring-offset-2');
+      });
+      // Highlight selected button
+      el.classList.add('ring-4', 'ring-offset-2');
+    }
+
+    function showError(message) {
+      const el = document.getElementById('error');
+      el.textContent = message;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    // When page loads
+    window.addEventListener('load', () => {
+      if (defaultName) document.getElementById('name').value = defaultName;
+      if (defaultToken) document.getElementById('token').value = defaultToken;
+    });
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Student System</h1>
+        <p class="text-lg text-gray-600">Select your role to begin</p>
+      </div>
+
+      <!-- Main Card -->
+      <div class="bg-white rounded-xl shadow-xl p-6">
+        <!-- Role Selection -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <!-- Manager Card -->
+          <button onclick="selectRole('MANAGER', this)" class="role-btn group relative block bg-white rounded-lg border-2 border-gray-200 p-6 hover:border-blue-500 focus:outline-none">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 bg-blue-500 text-white rounded-full p-2 shadow-lg hidden group-hover:block">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <div class="text-center">
+              <div class="w-16 h-16 bg-blue-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Manager</h3>
+              <p class="text-sm text-gray-500">Control board for system management and monitoring</p>
+            </div>
+          </button>
+
+          <!-- First Scan Card -->
+          <button onclick="selectRole('FIRST_SCAN', this)" class="role-btn group relative block bg-white rounded-lg border-2 border-gray-200 p-6 hover:border-green-500 focus:outline-none">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 bg-green-500 text-white rounded-full p-2 shadow-lg hidden group-hover:block">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <div class="text-center">
+              <div class="w-16 h-16 bg-green-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">First Scan</h3>
+              <p class="text-sm text-gray-500">Initial student intake with camera scanning</p>
+            </div>
+          </button>
+
+          <!-- Last Scan Card -->
+          <button onclick="selectRole('LAST_SCAN', this)" class="role-btn group relative block bg-white rounded-lg border-2 border-gray-200 p-6 hover:border-purple-500 focus:outline-none">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 bg-purple-500 text-white rounded-full p-2 shadow-lg hidden group-hover:block">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <div class="text-center">
+              <div class="w-16 h-16 bg-purple-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Last Scan</h3>
+              <p class="text-sm text-gray-500">Final validation and record storage</p>
+            </div>
+          </button>
+        </div>
+
+        <!-- Device Configuration -->
+        <form onsubmit="return validateAndSave()" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Device Name -->
+            <div class="space-y-2">
+              <label for="name" class="block text-sm font-medium text-gray-700">Device Name</label>
+              <input 
+                id="name" 
+                type="text" 
+                placeholder="e.g., Black-1, Purple-2" 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                required
+              />
+              <p class="text-xs text-gray-500">A unique name to identify this device in the system</p>
+            </div>
+
+            <!-- Security Token -->
+            <div class="space-y-2">
+              <label for="token" class="block text-sm font-medium text-gray-700">Security Token</label>
+              <input 
+                id="token" 
+                type="password" 
+                placeholder="Optional security token" 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <p class="text-xs text-gray-500">Required if set by the Manager (optional)</p>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div id="error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded"></div>
+
+          <!-- Continue Button -->
+          <div class="flex justify-end">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              Continue →
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Help Text -->
+      <div class="mt-6 text-center text-sm text-gray-500">
+        <p>Need help? Check the network configuration in the README file.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

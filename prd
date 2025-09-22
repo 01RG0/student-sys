@@ -1,0 +1,268 @@
+📌 Product Requirements Document (PRD)
+1. Project Overview
+
+We are building a distributed student data scanning and verification system with three roles:
+
+Manager Node (Central Controller)
+
+First Scan Nodes (initial scanners)
+
+Last Scan Node (final validator & storage)
+
+The system ensures that:
+
+Student data can be scanned/added at the First Scan laptops.
+
+Data is validated and transferred in real-time via the Manager.
+
+Last Scan laptop receives and persists records student by student.
+
+All devices consume their own resources without heavy programming language installations.
+
+The web application is the only interface required across all nodes.
+
+2. System Components
+2.1 Manager Node
+
+Acts as the central orchestrator and communication hub.
+
+Responsibilities:
+
+Provides web interface for monitoring & control.
+
+Shows all connected laptops (First Scan, Last Scan).
+
+Provides Live Log of activities.
+
+Supports file import (initial student list as Excel).
+
+Converts Excel → JSON (lighter format).
+
+Distributes this JSON to all First Scan nodes as cache.
+
+Forwards student data directly from First Scan → Last Scan (no modifications for speed).
+
+Features:
+
+Dashboard: Connected nodes status, logs, control buttons.
+
+File Conversion & Distribution Tool.
+
+Full System Control (reset, start, stop, etc.).
+
+2.2 First Scan Node (previously “Black Laptop”)
+
+Primary role: student intake (scan/manual add).
+
+Responsibilities:
+
+Scan students using device camera via web app.
+
+Extract student data locally (check registration status, homework status).
+
+Add student manually if scanning fails.
+
+Send student record immediately to Manager.
+
+Show minimal local interface:
+
+Scan Student
+
+Add Student (manual)
+
+History of sent students
+
+Behavior:
+
+Uses its own device resources (camera + local scanning).
+
+Works with cached student list from Manager (JSON).
+
+After extracting, pushes data instantly to Manager → Manager forwards to Last Scan.
+
+2.3 Last Scan Node (previously “Purple Laptop”)
+
+Final validator & permanent storage.
+
+Responsibilities:
+
+Receives data student by student from Manager.
+
+Updates its local file storage immediately (JSON or lightweight DB).
+
+Performs its own scanning/checking if needed (same web interface).
+
+Provides organized view of all incoming students.
+
+Stores:
+
+Student base info
+
+Registration state
+
+Homework state
+
+Features:
+
+Dashboard for reviewing incoming students.
+
+Simple table view (no search/filter at this stage).
+
+Option to re-scan manually.
+
+Automatic file-saving per update (no batch file overwrite).
+
+3. Data Flow
+
+Initialization
+
+Manager imports student Excel file.
+
+Converts to JSON and distributes to all First Scan nodes.
+
+Student Scanning (First Scan Node)
+
+First Scan performs scan/manual add.
+
+Extracts: Student ID, Registration Status, Homework Status.
+
+Sends data to Manager.
+
+Manager Routing
+
+Manager receives student record.
+
+Immediately forwards it to Last Scan.
+
+Logs the activity (for monitoring).
+
+Last Scan Validation & Storage
+
+Last Scan receives student record one by one.
+
+Stores/updates local JSON (or lightweight DB).
+
+Marks registration as critical, homework optional.
+
+Displays data in its dashboard.
+
+4. Functional Requirements
+
+Manager Node
+
+Import Excel & convert to JSON.
+
+Distribute JSON cache to First Scans.
+
+Real-time forwarding of student records.
+
+Central Dashboard with:
+
+Connected nodes list
+
+Live Log
+
+Control options
+
+First Scan Node
+
+Scan via camera in browser (web app).
+
+Manual student entry option.
+
+Use JSON cache for reference.
+
+Send student record to Manager.
+
+Last Scan Node
+
+Receive records one by one.
+
+Store/update JSON file (permanent record).
+
+Display organized table view.
+
+Manual re-scan option.
+
+5. Non-Functional Requirements
+
+Performance:
+
+Student records must be processed & forwarded within 2 seconds.
+
+Scalability:
+
+Multiple First Scan nodes can operate simultaneously.
+
+Reliability:
+
+Last Scan must persist data even if Manager disconnects.
+
+Resource Efficiency:
+
+No heavy software installed on First Scan/Last Scan nodes (only browser web app).
+
+Security:
+
+Lightweight login (node name + role) required.
+
+Data transmission encrypted (HTTPS / WSS).
+
+6. Tech Stack
+
+Frontend: Simple Web App (HTML/JS, minimal UI, no heavy frameworks).
+
+Backend (Manager only):
+
+Python (FastAPI/Flask) for Excel → JSON conversion & API gateway.
+
+WebSockets/HTTP for real-time communication.
+
+Storage:
+
+Last Scan: JSON file (or SQLite for stability).
+
+Manager: Temporary cache (in-memory or JSON).
+
+Deployment:
+
+Manager hosts backend + frontend.
+
+First Scan & Last Scan access through browser.
+
+7. User Interfaces
+7.1 Manager Dashboard
+
+Nodes Online (First Scans, Last Scan)
+
+Live Log (student flow)
+
+Import Excel → Convert → Distribute
+
+Control (reset/start/stop)
+
+7.2 First Scan UI
+
+Scan Student (camera button)
+
+Add Manual Student
+
+Sent Students (history list)
+
+7.3 Last Scan UI
+
+Incoming Students Table (real-time updates)
+
+Rescan Student (manual)
+
+Local File Persistence
+
+8. Future Extensions
+
+Filters/search in Last Scan.
+
+Backup button for Last Scan storage.
+
+Notifications if student not found in cache.
+
+Export final dataset in multiple formats (CSV, Excel).

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manager Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <script>
+    let ws;
+    const token = localStorage.getItem('NODE_TOKEN') || '';
+    
+    function log(msg) {
+      const el = document.getElementById('log');
+      const time = new Date().toLocaleTimeString();
+      el.innerHTML = `<div class="text-sm">[${time}] ${msg}</div>` + el.innerHTML;
+      if (el.children.length > 100) el.lastChild.remove();
+    }
+
+    async function refreshNodes() {
+      try {
+        const res = await fetch('/api/nodes');
+        const data = await res.json();
+        const firstScans = data.nodes.filter(n => n.role === 'first_scan');
+        const lastScans = data.nodes.filter(n => n.role === 'last_scan');
+        
+        document.getElementById('firstScans').innerHTML = firstScans
+          .map(n => `<div class="bg-green-100 p-2 rounded">${n.name} (active)</div>`)
+          .join('') || '<div class="text-gray-500">No First Scan nodes connected</div>';
+        
+        document.getElementById('lastScans').innerHTML = lastScans
+          .map(n => `<div class="bg-purple-100 p-2 rounded">${n.name} (active)</div>`)
+          .join('') || '<div class="text-gray-500">No Last Scan nodes connected</div>';
+      } catch(e) { 
+        console.error(e);
+      }
+    }
+
+    async function uploadExcel() {
+      const fileInput = document.getElementById('excel');
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/upload-excel', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        document.getElementById('cacheInfo').textContent = 
+          `Cache v${data.version}, students: ${data.studentsCount}`;
+        log('Excel uploaded and cache distributed to First Scans');
+      } catch(e) {
+        log('Error uploading Excel: ' + e.message);
+      }
+    }
+
+    async function doBackup(kind) {
+      const url = kind === 'json' ? '/api/backup/json' 
+                : kind === 'csv' ? '/api/backup/csv' 
+                : '/api/backup/excel';
+      window.open(url, '_blank');
+    }
+
+    async function doReset() {
+      if(!confirm('This will clear all events and state. Continue?')) return;
+      try {
+        const res = await fetch('/api/reset', { method: 'POST' });
+        if(res.ok) {
+          log('System reset completed');
+        } else {
+          alert('Reset failed');
+        }
+      } catch(e) {
+        alert('Reset failed: ' + e.message);
+      }
+    }
+
+    function connect() {
+      ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onopen = () => {
+        ws.send(JSON.stringify({
+          type: 'register',
+          node: {
+            name: 'Manager',
+            role: 'manager'
+          },
+          token
+        }));
+        log('Connected to server');
+        refreshNodes();
+      };
+      ws.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === 'student_record') {
+          log(`Student record received: ${msg.payload.studentId}`);
+        } else if (msg.type === 'log') {
+          log(msg.message);
+        }
+      };
+      ws.onclose = () => {
+        log('Disconnected from server');
+        setTimeout(connect, 2000);
+      };
+    }
+
+    // Auto-refresh nodes every 10 seconds
+    setInterval(refreshNodes, 10000);
+    window.addEventListener('load', connect);
+  </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-900">Manager Dashboard</h1>
+      <div class="flex gap-2">
+        <button onclick="doReset()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+          Reset System
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Connected Nodes -->
+      <div class="bg-white rounded-lg shadow p-6 space-y-4">
+        <h2 class="text-xl font-semibold border-b pb-2">Connected Nodes</h2>
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 mb-2">First Scan Nodes</h3>
+            <div id="firstScans" class="space-y-2">
+              <div class="text-gray-500">Loading...</div>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 mb-2">Last Scan Nodes</h3>
+            <div id="lastScans" class="space-y-2">
+              <div class="text-gray-500">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Excel Upload -->
+      <div class="bg-white rounded-lg shadow p-6 space-y-4">
+        <h2 class="text-xl font-semibold border-b pb-2">Excel Import</h2>
+        <div class="space-y-4">
+          <div class="flex gap-4 items-end">
+            <div class="flex-1">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Upload Student List</label>
+              <input id="excel" type="file" accept=".xlsx,.xls" class="w-full" />
+            </div>
+            <button onclick="uploadExcel()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+              Upload & Distribute
+            </button>
+          </div>
+          <div id="cacheInfo" class="text-sm text-gray-600">No cache loaded</div>
+        </div>
+      </div>
+
+      <!-- Live Log -->
+      <div class="bg-white rounded-lg shadow p-6 space-y-4 md:col-span-2">
+        <h2 class="text-xl font-semibold border-b pb-2">Live System Log</h2>
+        <div id="log" class="h-[300px] overflow-y-auto space-y-1 font-mono text-sm bg-gray-50 p-4 rounded"></div>
+      </div>
+
+      <!-- Backup Controls -->
+      <div class="bg-white rounded-lg shadow p-6 space-y-4 md:col-span-2">
+        <h2 class="text-xl font-semibold border-b pb-2">Backup & Export</h2>
+        <div class="flex gap-4">
+          <button onclick="doBackup('json')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+            Export JSON
+          </button>
+          <button onclick="doBackup('csv')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+            Export CSV
+          </button>
+          <button onclick="doBackup('excel')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+            Export Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

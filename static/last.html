@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Last Scan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <script>
+    let ws;
+    let codeReader;
+    let selectedDeviceId;
+    const rows = [];
+    const token = localStorage.getItem('NODE_TOKEN') || '';
+    let localStorageKey = 'lastScanStorage';
+    let expectedStudents = new Set(); // Track students that need scanning
+    
+    // Local storage functions
+    function saveToLocal() {
+      try {
+        localStorage.setItem(localStorageKey, JSON.stringify(rows));
+      } catch (e) {
+        console.error('Failed to save to local storage:', e);
+      }
+    }
+
+    function loadFromLocal() {
+      try {
+        const saved = localStorage.getItem(localStorageKey);
+        if (saved) {
+          rows.push(...JSON.parse(saved));
+          render();
+        }
+      } catch (e) {
+        console.error('Failed to load from local storage:', e);
+      }
+    }
+
+    function exportData(format) {
+      const data = rows.map(r => ({
+        timestamp: r.timestamp || new Date().toISOString(),
+        studentId: r.studentId || '',
+        registrationStatus: r.registrationStatus || '',
+        homeworkStatus: r.homeworkStatus || '',
+        comment: r.comment || '',
+        source: r.source ? r.source.nodeName : ''
+      }));
+
+      if (format === 'json') {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        downloadBlob(blob, 'last-scan-export.json');
+      } else if (format === 'csv') {
+        const headers = ['Timestamp', 'Student ID', 'Registration', 'Homework', 'Comment', 'Source'];
+        const csvContent = [
+          headers.join(','),
+          ...data.map(r => [
+            r.timestamp,
+            r.studentId,
+            r.registrationStatus,
+            r.homeworkStatus,
+            `"${r.comment.replace(/"/g, '""')}"`,
+            r.source
+          ].join(','))
+        ].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        downloadBlob(blob, 'last-scan-export.csv');
+      }
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    // Scanner functions
+    async function initScanner() {
+      try {
+        codeReader = new ZXing.BrowserMultiFormatReader();
+        const videoInputDevices = await codeReader.listVideoInputDevices();
+        
+        const select = document.getElementById('camera-select');
+        select.innerHTML = videoInputDevices.map(device => 
+          `<option value="${device.deviceId}">${device.label}</option>`
+        ).join('');
+        
+        selectedDeviceId = videoInputDevices[0].deviceId;
+        select.value = selectedDeviceId;
+        
+        select.onchange = (event) => {
+          selectedDeviceId = event.target.value;
+          startScanner();
+        };
+      } catch (err) {
+        console.error('Scanner init error:', err);
+      }
+    }
+
+    function toggleScanner() {
+      const scannerSection = document.getElementById('scanner-section');
+      const isVisible = scannerSection.classList.toggle('hidden');
+      
+      if (!isVisible) {
+        startScanner();
+      } else {
+        stopScanner();
+      }
+    }
+
+    async function startScanner() {
+      try {
+        if (codeReader) {
+          const video = document.getElementById('scanner');
+          await codeReader.decodeFromVideoDevice(selectedDeviceId, video, (result, err) => {
+            if (result) {
+              const studentId = result.getText();
+              // Find student in rows
+              const existing = rows.find(r => r.studentId === studentId);
+              
+              if (!expectedStudents.has(studentId)) {
+                showToast(`Warning: Unexpected student ID: ${studentId}`, true);
+                const audio = new Audio('/static/error.mp3');
+                audio.play().catch(() => {});
+                return;
+              }
+              
+              if (existing) {
+                const scannedTime = new Date(existing.timestamp).toLocaleTimeString();
+                showToast(`Already scanned: ${studentId} at ${scannedTime}`);
+                highlightRow(studentId);
+                const audio = new Audio('/static/warning.mp3');
+                audio.play().catch(() => {});
+              } else {
+                showToast(`Student found: ${studentId}`);
+                highlightRow(studentId);
+                const audio = new Audio('/static/success.mp3');
+                audio.play().catch(() => {});
+              }
+            }
+          });
+        }
+      } catch (err) {
+        showToast('Scanner error: ' + err.message, true);
+      }
+    }
+
+    function stopScanner() {
+      if (codeReader) {
+        codeReader.reset();
+      }
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg ${
+        isError ? 'bg-red-500' : 'bg-green-500'
+      } text-white`;
+      setTimeout(() => toast.className = 'hidden', 3000);
+    }
+
+    function highlightRow(studentId) {
+      const rows = document.querySelectorAll('#tbl tbody tr');
+      rows.forEach(row => {
+        if (row.children[0].textContent === studentId) {
+          row.classList.add('bg-yellow-100');
+          row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => row.classList.remove('bg-yellow-100'), 2000);
+        }
+      });
+    }
+
+    function updateProgress() {
+      const scanned = new Set(rows.map(r => r.studentId));
+      const remaining = [...expectedStudents].filter(id => !scanned.has(id));
+      
+      // Update progress bar
+      const total = expectedStudents.size;
+      const completed = scanned.size;
+      const progress = total ? Math.round((completed / total) * 100) : 0;
+      
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      document.getElementById('progress-text').textContent = 
+        `${completed}/${total} students scanned (${progress}%)`;
+      document.getElementById('remaining-count').textContent = 
+        `${remaining.length} students remaining`;
+      
+      // Update remaining list
+      const remainingList = document.getElementById('remaining-list');
+      remainingList.innerHTML = remaining
+        .slice(0, 5) // Show only first 5
+        .map(id => `<li class="text-red-600">${id}</li>`)
+        .join('') +
+        (remaining.length > 5 ? `<li class="text-gray-500">...and ${remaining.length - 5} more</li>` : '');
+    }
+
+    // WebSocket and data handling
+    function connect() {
+      ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onopen = () => {
+        ws.send(JSON.stringify({
+          type: 'register',
+          node: {name: 'Purple-Last', role: 'last_scan'},
+          token
+        }));
+        replay();
+        showToast('Connected to server');
+      };
+      ws.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === 'forward_student_record') {
+          addRow(msg.payload);
+          expectedStudents.add(msg.payload.studentId);
+          updateProgress();
+          showToast(`New record: ${msg.payload.studentId}`);
+        } else if (msg.type === 'cache') {
+          // Initialize expected students from cache
+          expectedStudents = new Set(msg.students.map(s => s.studentId));
+          updateProgress();
+        }
+      };
+      ws.onclose = () => {
+        showToast('Disconnected, retrying...', true);
+        setTimeout(connect, 2000);
+      };
+    }
+
+    async function replay() {
+      try {
+        const res = await fetch('/api/events_json');
+        const data = await res.json();
+        (data.events || []).forEach(e => {
+          if (e.type === 'student_record') addRow(e.payload);
+        });
+      } catch (e) {
+        showToast('Failed to load history', true);
+      }
+    }
+
+    function addRow(p) {
+      p.timestamp = new Date().toISOString();
+      rows.unshift(p);
+      render();
+      saveToLocal();
+    }
+
+    function render() {
+      const tbody = document.querySelector('#tbl tbody');
+      tbody.innerHTML = rows.map(r => {
+        const regClass = r.registrationStatus === 'registered' ? 'text-green-600' :
+                        r.registrationStatus === 'not_registered' ? 'text-red-600' : 'text-gray-600';
+        const hwClass = r.homeworkStatus === 'done' ? 'text-green-600' :
+                       r.homeworkStatus === 'not_done' ? 'text-red-600' : 'text-gray-600';
+        return `<tr class="border-b hover:bg-gray-50">
+          <td class="px-3 py-2">${r.studentId || ''}</td>
+          <td class="px-3 py-2 ${regClass} font-medium">${r.registrationStatus || ''}</td>
+          <td class="px-3 py-2 ${hwClass}">${r.homeworkStatus || ''}</td>
+          <td class="px-3 py-2">${r.comment || ''}</td>
+          <td class="px-3 py-2 text-xs text-gray-500">${new Date(r.timestamp).toLocaleTimeString()}</td>
+          <td class="px-3 py-2 text-xs text-gray-500">${r.source ? r.source.nodeName : ''}</td>
+        </tr>`;
+      }).join('');
+      
+      // Update counter
+      document.getElementById('counter').textContent = `${rows.length} records`;
+    }
+
+    window.addEventListener('load', () => {
+      connect();
+      loadFromLocal();
+      initScanner();
+    });
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="max-w-7xl mx-auto p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold">Last Scan</h1>
+        <div class="text-gray-500 space-y-1">
+          <p id="counter">0 records</p>
+          <p id="remaining-count">0 students remaining</p>
+        </div>
+        <!-- Progress Bar -->
+        <div class="mt-2 w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div id="progress-bar" class="h-full bg-green-500 transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <p id="progress-text" class="text-sm text-gray-600 mt-1">0/0 students scanned (0%)</p>
+      </div>
+      
+      <!-- Remaining Students List -->
+      <div class="bg-white rounded-lg shadow-sm p-4 max-w-xs">
+        <h3 class="text-sm font-medium mb-2">Remaining Students</h3>
+        <ul id="remaining-list" class="text-sm space-y-1"></ul>
+      </div>
+      <div class="flex gap-4">
+        <button onclick="toggleScanner()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Toggle Scanner
+        </button>
+        <div class="flex gap-2">
+          <button onclick="exportData('json')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+            Export JSON
+          </button>
+          <button onclick="exportData('csv')" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+            Export CSV
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scanner Section (Hidden by default) -->
+    <div id="scanner-section" class="hidden">
+      <div class="bg-white rounded-lg shadow-lg p-4 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-medium">Rescan Mode</h2>
+          <select id="camera-select" class="text-sm border rounded px-2 py-1"></select>
+        </div>
+        <div class="aspect-video bg-black rounded-lg overflow-hidden">
+          <video id="scanner" class="w-full h-full object-cover"></video>
+        </div>
+        <p class="text-sm text-gray-500">
+          Scan a student ID to quickly find them in the table
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="overflow-x-auto">
+        <table id="tbl" class="w-full text-sm">
+          <thead>
+            <tr class="bg-gray-100 text-left">
+              <th class="px-3 py-3 font-semibold">ID</th>
+              <th class="px-3 py-3 font-semibold">Registration</th>
+              <th class="px-3 py-3 font-semibold">Homework</th>
+              <th class="px-3 py-3 font-semibold">Comment</th>
+              <th class="px-3 py-3 font-semibold">Time</th>
+              <th class="px-3 py-3 font-semibold">Source</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="hidden"></div>
+</body>
+</html>
+
